@@ -28,7 +28,7 @@ import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Define the pic id
+    
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     // Define the button and ImageView type variable
