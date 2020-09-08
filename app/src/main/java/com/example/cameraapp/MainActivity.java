@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 /*import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -12,8 +13,10 @@ import com.google.android.material.snackbar.Snackbar;*/
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 // import androidx.appcompat.widget.Toolbar;
 
+import android.os.Environment;
 import android.view.View;
 
 /*import android.view.Menu;
@@ -25,11 +28,19 @@ import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class MainActivity extends AppCompatActivity {
 
     
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    // Current Photo's path
+    String currentPhotoPath = null;
 
     // Define the button and ImageView type variable
     Button camera_open_id;
@@ -50,13 +61,14 @@ public class MainActivity extends AppCompatActivity {
         click_image_id = (ImageView)findViewById(R.id.click_image1);
 
         // Camera Permission request
-        if(ContextCompat.checkSelfPermission( MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(  MainActivity.this,
+        if(ContextCompat.checkSelfPermission( MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(  MainActivity.this,
                 new String[]{
                         Manifest.permission.CAMERA
                 },
                  REQUEST_IMAGE_CAPTURE);
-    }
+        }
 
 
         // Camera_open button is for open the camera
@@ -68,9 +80,25 @@ public class MainActivity extends AppCompatActivity {
             {
 
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // Ensure that there's a camera activity to handle the intent
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    // Create the File where the photo should go
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                    } catch (IOException ex) {
+                        // Error occurred while creating the File
+                        ex.printStackTrace();
+                    }
+                    // Continue only if the File was successfully created
+                    if (photoFile != null) {
+                        Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                                "com.example.android.fileprovider", photoFile);
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    }
                 }
+
             }
         });
     }
@@ -80,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         // Match the request pic id with requestCode
+        super.onActivityResult(requestCode,resultCode,data);
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
             // BitMap is data structure of image file
@@ -90,4 +119,23 @@ public class MainActivity extends AppCompatActivity {
             click_image_id.setImageBitmap(captureImage);
         }
     }
+
+    // Creating an image file with a unique name using timestamp
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
 }
