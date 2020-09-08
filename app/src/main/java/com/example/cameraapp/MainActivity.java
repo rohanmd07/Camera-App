@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         // Match the request pic id with requestCode
+        super.onActivityResult(requestCode,resultCode,data);
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
             // BitMap is data structure of image file
