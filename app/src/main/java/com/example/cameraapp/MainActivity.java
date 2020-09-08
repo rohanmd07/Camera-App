@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -113,10 +114,12 @@ public class MainActivity extends AppCompatActivity {
 
             // BitMap is data structure of image file
             // which stores the image in memory
-            Bitmap captureImage = (Bitmap)data.getExtras().get("data");
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+
+            Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
 
             // Set the image in imageview for display
-            click_image_id.setImageBitmap(captureImage);
+            click_image_id.setImageBitmap(bitmap);
         }
     }
 
