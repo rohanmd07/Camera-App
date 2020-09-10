@@ -6,15 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+
 
     <Button
         android:id="@+id/camera_button"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="140dp"
-        android:text="Camera"
-        />
+        android:layout_marginTop="60dp"
+        android:text="Camera" />
 
     <ImageView
         android:id="@+id/click_image1"
